@@ -48,9 +48,6 @@ source bin/config
 
 ############# Variables
 
-USERS=(odersky DarkDimius felixmulder smarter nicolasstucki liufengyun OlivierBlanvillain)
-REPO=lampepfl/dotty
-# REPO=liufengyun/bench
 LAST_POLL=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 comment() {
@@ -65,13 +62,13 @@ comment() {
      message="performance test scheduled for $commits: $total job(s) in queue, $running running."
   fi
 
-  ghi comment $pr -m "$message"  -- $REPO
+  ghi comment $pr -m "$message"  -- $MONITOR_REPO
 }
 
 ############## Polling
 while true; do
   output=/tmp/poll-comments
-  wget https://api.github.com/repos/$REPO/issues/comments?since=$LAST_POLL -O $output
+  wget https://api.github.com/repos/$MONITOR_REPO/issues/comments?since=$LAST_POLL -O $output
   LAST_POLL=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
   pulls=$(cat $output | jq -r '.[] | select((.body | test("^(re)?test performance please")) and (.html_url | contains("pull")) ) | [.html_url,  .body] | @tsv')
@@ -79,7 +76,7 @@ while true; do
   while IFS= read -r line; do
     if [ "$line" != "" ]; then
       # https://github.com/lampepfl/dotty/pull/2970#issuecomment-321860528
-      pr=$(echo $line | sed 's/^.*pull\/\([0-9]\+\)#.*/\1/')
+      pr=$(echo $line | sed 's/^.*pull\/\([0-9]\{1,\}\).*/\1/')
 
       commits_info=$(printf $line | grep "test performance please" | sed 's/.*test performance please *:\(.*\)$/\1/' | sed 's/[^0-9a-z ]//g') # sanitize input
       if [[ $commits_info != *"test performance please"* ]]; then

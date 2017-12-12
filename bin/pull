@@ -108,6 +108,9 @@ fi
 for origin_commit in $(echo $COMMITS | tr ":" "\n")
 do
 
+  bench_script=/tmp/bench-script
+  wget https://raw.githubusercontent.com/$MONITOR_REPO/$origin_commit/bin/run-benchmarks.sh -O $bench_script
+  scp $bench_script bloop-benchmark-server:~/run-benchmarks.sh
   ssh bloop-benchmark-server "~/run-benchmarks.sh --ref $origin_commit --upload"
 
 done

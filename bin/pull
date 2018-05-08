@@ -43,14 +43,15 @@ fi
 TEMP_DIR=$(mktemp -d)
 function report {
   if [ -f "$LOG" ]; then
-    content=$(tail -n 50 "$LOG")
+    content=$(tail -n 100 "$LOG")
   fi
 
   message="Performance test failed:
 
-```
+<details>
+  <summary>Benchmark logs</summary>
 $content
-```
+</details>
 
 Error line number: $1
 

@@ -40,16 +40,18 @@ fi
 
 ############## Error handling
 
+TEMP_DIR=$(mktemp -d)
 function report {
   if [ -f "$LOG" ]; then
-    content=$(tail -n 20 "$LOG")
+    content=$(tail -n 100 "$LOG")
   fi
 
-  message="performance test failed:
+  message="Performance test failed:
 
-```
+<details>
+  <summary>Benchmark logs</summary>
 $content
-```
+</details>
 
 Error line number: $1
 
@@ -111,8 +113,17 @@ do
   bench_script=/tmp/bench-script
   wget https://raw.githubusercontent.com/$MONITOR_REPO/$origin_commit/bin/run-benchmarks.sh -O $bench_script
   scp $bench_script bloop-benchmark-server:~/run-benchmarks.sh
-  ssh bloop-benchmark-server "~/run-benchmarks.sh --ref $origin_commit --upload"
 
+  log_filename="$(date +"%F-%H%M%S")-benchmarks-log.txt"
+  LOG="$TEMP_DIR/$log_filename"
+  remote_log_file="~/bloop-benchmarks/$log_filename"
+
+  ssh bloop-benchmark-server "~/run-benchmarks.sh --ref $origin_commit --log-file $remote_log_file --upload"
+  exit_code="$?"
+  if [ "$exit_code" != "0" ]; then 
+    scp "bloop-benchmark-server:$remote_log_file" "$LOG"
+    exit "$exit_code"
+  fi
 done
 
 message="Performance test finished successfully.

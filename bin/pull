@@ -42,14 +42,15 @@ fi
 
 TEMP_DIR=$(mktemp -d)
 function report {
-  if [ -f "$LOG" ]; then
-    content=$(tail -n 100 "$LOG")
+  if [[ -e "$LOG" ]]; then
+    echo "Log file $LOG exists, dumping its 200 last lines"
+    content=$(tail -n 200 "$LOG")
   fi
 
   message="Performance test failed:
 
 <details>
-  <summary>Benchmark logs</summary>
+  <summary>Benchmark logs (last 200 lines)</summary>
 $content
 </details>
 
@@ -121,6 +122,9 @@ do
   ssh bloop-benchmark-server "~/run-benchmarks.sh --ref $origin_commit --log-file $remote_log_file --upload"
   exit_code="$?"
   if [ "$exit_code" != "0" ]; then 
+    echo "Exit code failed; killing the process."
+    ssh bloop-benchmark-server "pkill run-benchmarks.sh"
+    echo "Copying the log file from remote benchmark machine."
     scp "bloop-benchmark-server:$remote_log_file" "$LOG"
     exit "$exit_code"
   fi

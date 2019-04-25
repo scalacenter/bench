@@ -29,11 +29,9 @@ fi
 ## error
 
 report() {
-  message="job queue exception
+  message="The job tasked with running benchmarking jobs has exited. Contact administrators to run it again so that benchmarks can keep running."
 
-job queue exception"
-
-  ghi open -m "$message" -- $MONITOR_REPO
+  ghi comment 865 -m "$message" -- $MONITOR_REPO
 
   exit 1
 }

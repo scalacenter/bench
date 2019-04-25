@@ -30,11 +30,8 @@ fi
 ############# Error
 
 function report {
-  message="polling service exception
-
-polling service exception"
-
-  ghi open -m "$message" -- $MONITOR_REPO
+  message="The job tasked with polling benchmarking requests from GitHub has exited."
+  ghi comment 865 -m "$message" -- $MONITOR_REPO
 
   exit 1
 }

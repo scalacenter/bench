@@ -43,9 +43,9 @@ fi
 TEMP_DIR=$(mktemp -d)
 function report {
   echo "Exit code failed; killing the process."
-  ssh -p 8822 benchmarks@localhost "pkill run-benchmarks.sh"
+  ssh -p 8822 benchs@localhost "pkill run-benchmarks.sh"
   echo "Copying the log file from remote benchmark machine."
-  scp -P 8822 "benchmarks@localhost:$remote_log_file" "$LOG"
+  scp -P 8822 "benchs@localhost:$remote_log_file" "$LOG"
 
   if [[ -e "$LOG" ]]; then
     echo "Log file $LOG exists, dumping its 200 last lines"
@@ -118,14 +118,14 @@ do
 
   bench_script=/tmp/bench-script
   wget https://raw.githubusercontent.com/$MONITOR_REPO/$origin_commit/bin/run-benchmarks.sh -O $bench_script
-  scp -P 8822 $bench_script benchmarks@localhost:~/run-benchmarks.sh
+  scp -P 8822 $bench_script benchs@localhost:~/run-benchmarks.sh
 
   log_filename="$(date +"%F-%H%M%S")-benchmarks-log.txt"
   LOG="$TEMP_DIR/$log_filename"
   remote_log_file="~/bloop-benchmarks/$log_filename"
 
-  ssh -p 8822 benchmarks@localhost "chmod +x ~/run-benchmarks.sh"
-  ssh -p 8822 benchmarks@localhost "touch $remote_log_file; ~/run-benchmarks.sh --ref $origin_commit --upload | tee $remote_log_file"
+  ssh -p 8822 benchs@localhost "chmod +x ~/run-benchmarks.sh"
+  ssh -p 8822 benchs@localhost "touch $remote_log_file; ~/run-benchmarks.sh --ref $origin_commit --upload | tee $remote_log_file"
 done
 
 message="Performance test finished successfully.

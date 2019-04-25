@@ -113,7 +113,7 @@ do
 
   bench_script=/tmp/bench-script
   wget https://raw.githubusercontent.com/$MONITOR_REPO/$origin_commit/bin/run-benchmarks.sh -O $bench_script
-  scp $bench_script bloop-benchmark-server:~/run-benchmarks.sh
+  scp -P 8822 $bench_script benchmarks@localhost:~/run-benchmarks.sh
 
   log_filename="$(date +"%F-%H%M%S")-benchmarks-log.txt"
   LOG="$TEMP_DIR/$log_filename"

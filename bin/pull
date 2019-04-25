@@ -119,13 +119,13 @@ do
   LOG="$TEMP_DIR/$log_filename"
   remote_log_file="~/bloop-benchmarks/$log_filename"
 
-  ssh bloop-benchmark-server "~/run-benchmarks.sh --ref $origin_commit --log-file $remote_log_file --upload"
+  ssh -p 8822 benchmarks@localhost "~/run-benchmarks.sh --ref $origin_commit --log-file $remote_log_file --upload"
   exit_code="$?"
   if [ "$exit_code" != "0" ]; then 
     echo "Exit code failed; killing the process."
-    ssh bloop-benchmark-server "pkill run-benchmarks.sh"
+    ssh -p 8822 benchmarks@localhost "pkill run-benchmarks.sh"
     echo "Copying the log file from remote benchmark machine."
-    scp "bloop-benchmark-server:$remote_log_file" "$LOG"
+    scp -P 8822 "benchmarks@localhost:$remote_log_file" "$LOG"
     exit "$exit_code"
   fi
 done

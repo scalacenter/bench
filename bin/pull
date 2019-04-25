@@ -42,6 +42,11 @@ fi
 
 TEMP_DIR=$(mktemp -d)
 function report {
+  echo "Exit code failed; killing the process."
+  ssh -p 8822 benchmarks@localhost "pkill run-benchmarks.sh"
+  echo "Copying the log file from remote benchmark machine."
+  scp -P 8822 "benchmarks@localhost:$remote_log_file" "$LOG"
+
   if [[ -e "$LOG" ]]; then
     echo "Log file $LOG exists, dumping its 200 last lines"
     content=$(tail -n 200 "$LOG")
@@ -121,14 +126,6 @@ do
 
   ssh -p 8822 benchmarks@localhost "chmod +x ~/run-benchmarks.sh; touch $remote_log_file"
   ssh -p 8822 benchmarks@localhost "~/run-benchmarks.sh --ref $origin_commit --log-file $remote_log_file --upload"
-  exit_code="$?"
-  if [ "$exit_code" != "0" ]; then 
-    echo "Exit code failed; killing the process."
-    ssh -p 8822 benchmarks@localhost "pkill run-benchmarks.sh"
-    echo "Copying the log file from remote benchmark machine."
-    scp -P 8822 "benchmarks@localhost:$remote_log_file" "$LOG"
-    exit "$exit_code"
-  fi
 done
 
 message="Performance test finished successfully.

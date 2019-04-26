@@ -125,7 +125,9 @@ do
   remote_log_file="~/bloop-benchmarks/$log_filename"
 
   ssh -p 8822 benchs@localhost "chmod +x ~/run-benchmarks.sh"
-  ssh -p 8822 benchs@localhost "touch $remote_log_file; ~/run-benchmarks.sh --ref $origin_commit --upload | tee $remote_log_file"
+  if ! ssh -p 8822 benchs@localhost "touch $remote_log_file; ~/run-benchmarks.sh --ref $origin_commit --upload | tee $remote_log_file"; then
+    exit 1
+  fi
 done
 
 message="Performance test finished successfully.
